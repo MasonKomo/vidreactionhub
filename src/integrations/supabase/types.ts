@@ -219,6 +219,7 @@ export type Database = {
           user_id: string | null
           video_url: string
           views_count: number
+          youtube_video_id: string
         }
         Insert: {
           created_at?: string
@@ -233,6 +234,7 @@ export type Database = {
           user_id?: string | null
           video_url: string
           views_count?: number
+          youtube_video_id?: string
         }
         Update: {
           created_at?: string
@@ -247,6 +249,7 @@ export type Database = {
           user_id?: string | null
           video_url?: string
           views_count?: number
+          youtube_video_id?: string
         }
         Relationships: [
           {

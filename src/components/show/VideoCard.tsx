@@ -3,17 +3,24 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { formatViewCount } from "@/lib/format";
+import { useNavigate } from "react-router-dom";
 
 type VideoCardProps = {
+  id: string;
   title: string;
   thumbnail_url: string;
   views_count: number;
   created_at: string;
 };
 
-export function VideoCard({ title, thumbnail_url, views_count, created_at }: VideoCardProps) {
+export function VideoCard({ id, title, thumbnail_url, views_count, created_at }: VideoCardProps) {
+  const navigate = useNavigate();
+
   return (
-    <Card className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer">
+    <Card 
+      className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+      onClick={() => navigate(`/video/${id}`)}
+    >
       <div className="aspect-video bg-muted">
         <img
           src={thumbnail_url}

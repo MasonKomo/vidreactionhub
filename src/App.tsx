@@ -10,6 +10,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 import Index from "./pages/Index";
 import ShowDetail from "./pages/ShowDetail";
 import EpisodeDetail from "./pages/EpisodeDetail";
+import VideoDetail from "./pages/VideoDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ function App() {
                     <Route path="/" element={<Index />} />
                     <Route path="/show/:id" element={<ShowDetail />} />
                     <Route path="/episode/:id" element={<EpisodeDetail />} />
+                    <Route path="/video/:id" element={<VideoDetail />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </main>
