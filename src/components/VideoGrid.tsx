@@ -10,9 +10,6 @@ type Video = {
   thumbnail_url: string;
   views_count: number;
   created_at: string;
-  profiles: {
-    username: string;
-  } | null;
 };
 
 async function fetchVideos() {
@@ -23,10 +20,7 @@ async function fetchVideos() {
       title,
       thumbnail_url,
       views_count,
-      created_at,
-      profiles:user_id (
-        username
-      )
+      created_at
     `)
     .order('created_at', { ascending: false })
     .limit(20);
@@ -101,7 +95,6 @@ export function VideoGrid() {
           <div className="p-4">
             <h3 className="font-medium line-clamp-2">{video.title}</h3>
             <div className="mt-2 text-sm text-muted-foreground">
-              <p>{video.profiles?.username || 'Unknown User'}</p>
               <p>
                 {formatViewCount(video.views_count)} views • {
                   format(new Date(video.created_at), 'MMM d, yyyy')
