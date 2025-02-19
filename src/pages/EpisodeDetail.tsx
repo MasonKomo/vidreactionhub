@@ -103,18 +103,18 @@ export default function EpisodeDetail() {
         </h1>
       </div>
 
-      {videos?.length ? (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold">Videos</h2>
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold">Reaction Videos</h2>
+        {videos?.length ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {videos.map((video) => (
               <VideoCard key={video.id} {...video} />
             ))}
           </div>
-        </div>
-      ) : (
-        <p className="text-muted-foreground">No videos available for this episode.</p>
-      )}
+        ) : (
+          <p className="text-muted-foreground">No reaction videos available for this episode.</p>
+        )}
+      </div>
     </div>
   );
 }

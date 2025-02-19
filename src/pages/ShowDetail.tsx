@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -26,12 +25,6 @@ type Episode = {
   id: string;
   title: string;
   episode_number: number;
-  video: {
-    id: string;
-    thumbnail_url: string;
-    views_count: number;
-    created_at: string;
-  } | null;
 };
 
 type Video = {
@@ -65,41 +58,14 @@ async function fetchSeasons(showId: string): Promise<Season[]> {
 }
 
 async function fetchEpisodes(seasonId: string): Promise<Episode[]> {
-  type RawEpisode = {
-    id: string;
-    title: string;
-    episode_number: number;
-    video: [{
-      id: string;
-      thumbnail_url: string;
-      views_count: number;
-      created_at: string;
-    }] | [];
-  };
-
   const { data, error } = await supabase
     .from('episodes')
-    .select(`
-      id,
-      title,
-      episode_number,
-      video:videos(
-        id,
-        thumbnail_url,
-        views_count,
-        created_at
-      )
-    `)
+    .select('id, title, episode_number')
     .eq('season_id', seasonId)
     .order('episode_number');
 
   if (error) throw error;
-
-  // Transform the data to match our Episode type
-  return (data as RawEpisode[]).map(episode => ({
-    ...episode,
-    video: episode.video.length > 0 ? episode.video[0] : null
-  }));
+  return data || [];
 }
 
 async function fetchShowVideos(showId: string): Promise<Video[]> {
@@ -188,7 +154,6 @@ export default function ShowDetail() {
                   id={episode.id}
                   title={episode.title}
                   episodeNumber={episode.episode_number}
-                  video={episode.video}
                 />
               ))}
             </div>
