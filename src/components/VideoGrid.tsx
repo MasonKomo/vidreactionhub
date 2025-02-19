@@ -20,31 +20,48 @@ type Show = {
 };
 
 async function fetchTopShows() {
-  const { data, error } = await supabase
-    .from('shows')
-    .select('id, title, thumbnail_url, platform')
-    .eq('top_show', true)
-    .order('created_at', { ascending: false });
+  try {
+    const { data, error } = await supabase
+      .from('shows')
+      .select('id, title, thumbnail_url, platform')
+      .eq('top_show', true)
+      .order('created_at', { ascending: false });
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error('Error fetching top shows:', error);
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error('Error in fetchTopShows:', error);
+    throw error;
+  }
 }
 
 async function fetchVideos() {
-  const { data, error } = await supabase
-    .from('videos')
-    .select(`
-      id,
-      title,
-      thumbnail_url,
-      views_count,
-      created_at
-    `)
-    .order('created_at', { ascending: false })
-    .limit(20);
+  try {
+    const { data, error } = await supabase
+      .from('videos')
+      .select(`
+        id,
+        title,
+        thumbnail_url,
+        views_count,
+        created_at
+      `)
+      .order('created_at', { ascending: false })
+      .limit(20);
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error('Error fetching videos:', error);
+      throw error;
+    }
+    console.log('Fetched videos:', data);
+    return data;
+  } catch (error) {
+    console.error('Error in fetchVideos:', error);
+    throw error;
+  }
 }
 
 function formatViewCount(count: number): string {
@@ -79,7 +96,12 @@ function TopShowsSection() {
     );
   }
 
-  if (error || !shows?.length) return null;
+  if (error) {
+    console.error('Error in TopShowsSection:', error);
+    return null;
+  }
+
+  if (!shows?.length) return null;
 
   return (
     <div className="overflow-x-auto pb-4">
@@ -116,6 +138,10 @@ export function VideoGrid() {
     queryFn: fetchVideos,
   });
 
+  if (error) {
+    console.error('Error in VideoGrid:', error);
+  }
+
   return (
     <div className="space-y-8">
       <TopShowsSection />
@@ -134,7 +160,7 @@ export function VideoGrid() {
         </div>
       ) : error ? (
         <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
-          Error loading videos. Please try again later.
+          Error loading videos. Please try again later. {error.message}
         </div>
       ) : !videos?.length ? (
         <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
