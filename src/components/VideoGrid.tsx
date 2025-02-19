@@ -1,8 +1,11 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { VideoCard } from "./show/VideoCard";
 
 type Video = {
   id: string;
@@ -20,57 +23,38 @@ type Show = {
 };
 
 async function fetchTopShows() {
-  try {
-    const { data, error } = await supabase
-      .from('shows')
-      .select('id, title, thumbnail_url, platform')
-      .eq('top_show', true)
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('shows')
+    .select('id, title, thumbnail_url, platform')
+    .eq('top_show', true)
+    .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching top shows:', error);
-      throw error;
-    }
-    return data;
-  } catch (error) {
-    console.error('Error in fetchTopShows:', error);
+  if (error) {
+    console.error('Error fetching top shows:', error);
     throw error;
   }
+  return data;
 }
 
 async function fetchVideos() {
-  try {
-    const { data, error } = await supabase
-      .from('videos')
-      .select(`
-        id,
-        title,
-        thumbnail_url,
-        views_count,
-        created_at
-      `)
-      .order('created_at', { ascending: false })
-      .limit(20);
+  const { data, error } = await supabase
+    .from('videos')
+    .select(`
+      id,
+      title,
+      thumbnail_url,
+      views_count,
+      created_at
+    `)
+    .order('created_at', { ascending: false })
+    .limit(20);
 
-    if (error) {
-      console.error('Error fetching videos:', error);
-      throw error;
-    }
-    console.log('Fetched videos:', data);
-    return data;
-  } catch (error) {
-    console.error('Error in fetchVideos:', error);
+  if (error) {
+    console.error('Error fetching videos:', error);
     throw error;
   }
-}
-
-function formatViewCount(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M`;
-  } else if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
+  
+  return data || [];
 }
 
 function TopShowsSection() {
@@ -135,20 +119,24 @@ function TopShowsSection() {
 }
 
 export function VideoGrid() {
+  const { toast } = useToast();
   const { data: videos, isLoading, error } = useQuery({
     queryKey: ['videos'],
     queryFn: fetchVideos,
+    onError: (error) => {
+      console.error('Error fetching videos:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not load videos. Please try again later.",
+      });
+    }
   });
 
-  if (error) {
-    console.error('Error in VideoGrid:', error);
-  }
-
-  return (
-    <div className="space-y-8">
-      <TopShowsSection />
-      
-      {isLoading ? (
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <TopShowsSection />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
           {[...Array(8)].map((_, i) => (
             <Card key={i} className="overflow-hidden bg-card">
@@ -160,44 +148,46 @@ export function VideoGrid() {
             </Card>
           ))}
         </div>
-      ) : error ? (
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <TopShowsSection />
         <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
-          Error loading videos. Please try again later. {error.message}
+          Error loading videos. Please try again later.
         </div>
-      ) : !videos?.length ? (
+      </div>
+    );
+  }
+
+  if (!videos?.length) {
+    return (
+      <div className="space-y-8">
+        <TopShowsSection />
         <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
           No videos found.
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-          {videos.map((video) => (
-            <Card 
-              key={video.id} 
-              className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-            >
-              <div className="aspect-video bg-muted">
-                {video.thumbnail_url && (
-                  <img
-                    src={video.thumbnail_url}
-                    alt={video.title}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium line-clamp-2">{video.title}</h3>
-                <div className="mt-2 text-sm text-muted-foreground">
-                  <p>
-                    {formatViewCount(video.views_count)} views • {
-                      format(new Date(video.created_at), 'MMM d, yyyy')
-                    }
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <TopShowsSection />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+        {videos.map((video) => (
+          <VideoCard
+            key={video.id}
+            title={video.title}
+            thumbnail_url={video.thumbnail_url}
+            views_count={video.views_count}
+            created_at={video.created_at}
+          />
+        ))}
+      </div>
     </div>
   );
 }
