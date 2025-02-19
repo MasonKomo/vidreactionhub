@@ -37,6 +37,7 @@ async function fetchTopShows() {
 }
 
 async function fetchVideos() {
+  console.log('Fetching videos...');
   const { data, error } = await supabase
     .from('videos')
     .select(`
@@ -54,6 +55,7 @@ async function fetchVideos() {
     throw error;
   }
   
+  console.log('Fetched videos:', data);
   return data || [];
 }
 
@@ -123,6 +125,8 @@ export function VideoGrid() {
   const { data: videos, isLoading, error } = useQuery({
     queryKey: ['videos'],
     queryFn: fetchVideos,
+    staleTime: 1000 * 60 * 5, // Consider data fresh for 5 minutes
+    retry: 3, // Retry failed requests 3 times
     meta: {
       onError: (error: Error) => {
         console.error('Error fetching videos:', error);
@@ -155,6 +159,7 @@ export function VideoGrid() {
   }
 
   if (error) {
+    console.error('VideoGrid error:', error);
     return (
       <div className="space-y-8">
         <TopShowsSection />
