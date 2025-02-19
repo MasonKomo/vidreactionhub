@@ -2,7 +2,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { VideoCard } from "@/components/show/VideoCard";
 import { format } from "date-fns";
@@ -160,6 +160,23 @@ export default function VideoDetail() {
           <span>{formatViewCount(video.views_count)} views</span>
           <span className="mx-2">•</span>
           <span>{format(new Date(video.created_at), 'MMM d, yyyy')}</span>
+          <span className="mx-2">•</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-sm h-auto p-0"
+            asChild
+          >
+            <a
+              href={`https://www.youtube.com/watch?v=${video.youtube_video_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 hover:text-primary"
+            >
+              Watch on YouTube
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </Button>
         </div>
         {video.description && (
           <p className="text-muted-foreground whitespace-pre-wrap">{video.description}</p>
