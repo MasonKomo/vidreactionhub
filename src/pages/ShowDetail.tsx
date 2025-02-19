@@ -1,4 +1,5 @@
 
+import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
@@ -131,6 +132,7 @@ function ShowHeader({ show }: { show: Show }) {
 
 export default function ShowDetail() {
   const { id } = useParams<{ id: string }>();
+  const [selectedSeason, setSelectedSeason] = React.useState<string>();
   
   const { data: show, isLoading: showLoading } = useQuery({
     queryKey: ['show', id],
@@ -143,8 +145,6 @@ export default function ShowDetail() {
     queryFn: () => fetchSeasons(id!),
     enabled: !!id,
   });
-
-  const [selectedSeason, setSelectedSeason] = React.useState<string>();
 
   const { data: episodes } = useQuery({
     queryKey: ['episodes', selectedSeason],
