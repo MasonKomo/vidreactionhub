@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -41,7 +40,7 @@ type Video = {
   created_at: string;
 };
 
-async function fetchShow(id: string) {
+async function fetchShow(id: string): Promise<Show> {
   const { data, error } = await supabase
     .from('shows')
     .select('id, title, description, thumbnail_url, platform')
@@ -52,7 +51,7 @@ async function fetchShow(id: string) {
   return data;
 }
 
-async function fetchSeasons(showId: string) {
+async function fetchSeasons(showId: string): Promise<Season[]> {
   const { data, error } = await supabase
     .from('seasons')
     .select('id, title, season_number')
@@ -60,10 +59,10 @@ async function fetchSeasons(showId: string) {
     .order('season_number');
 
   if (error) throw error;
-  return data;
+  return data || [];
 }
 
-async function fetchEpisodes(seasonId: string) {
+async function fetchEpisodes(seasonId: string): Promise<Episode[]> {
   const { data, error } = await supabase
     .from('episodes')
     .select(`
@@ -81,10 +80,10 @@ async function fetchEpisodes(seasonId: string) {
     .order('episode_number');
 
   if (error) throw error;
-  return data;
+  return data || [];
 }
 
-async function fetchShowVideos(showId: string) {
+async function fetchShowVideos(showId: string): Promise<Video[]> {
   const { data, error } = await supabase
     .from('videos')
     .select('id, title, thumbnail_url, views_count, created_at')
@@ -92,7 +91,7 @@ async function fetchShowVideos(showId: string) {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data;
+  return data || [];
 }
 
 function formatViewCount(count: number): string {
@@ -134,25 +133,25 @@ export default function ShowDetail() {
   const { id } = useParams<{ id: string }>();
   const [selectedSeason, setSelectedSeason] = React.useState<string>();
   
-  const { data: show, isLoading: showLoading } = useQuery({
+  const { data: show, isLoading: showLoading } = useQuery<Show>({
     queryKey: ['show', id],
     queryFn: () => fetchShow(id!),
     enabled: !!id,
   });
 
-  const { data: seasons } = useQuery({
+  const { data: seasons } = useQuery<Season[]>({
     queryKey: ['seasons', id],
     queryFn: () => fetchSeasons(id!),
     enabled: !!id,
   });
 
-  const { data: episodes } = useQuery({
+  const { data: episodes } = useQuery<Episode[]>({
     queryKey: ['episodes', selectedSeason],
     queryFn: () => fetchEpisodes(selectedSeason!),
     enabled: !!selectedSeason,
   });
 
-  const { data: videos } = useQuery({
+  const { data: videos } = useQuery<Video[]>({
     queryKey: ['showVideos', id],
     queryFn: () => fetchShowVideos(id!),
     enabled: !!id,

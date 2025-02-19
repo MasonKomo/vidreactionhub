@@ -35,7 +35,9 @@ export type Database = {
       }
       episodes: {
         Row: {
+          air_date: string | null
           created_at: string
+          duration: number | null
           episode_number: number
           id: string
           season_id: string
@@ -43,7 +45,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          air_date?: string | null
           created_at?: string
+          duration?: number | null
           episode_number: number
           id?: string
           season_id: string
@@ -51,7 +55,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          air_date?: string | null
           created_at?: string
+          duration?: number | null
           episode_number?: number
           id?: string
           season_id?: string
@@ -96,6 +102,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          number_of_eps: number | null
           season_number: number
           show_id: string
           title: string
@@ -104,6 +111,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          number_of_eps?: number | null
           season_number: number
           show_id: string
           title: string
@@ -112,6 +120,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          number_of_eps?: number | null
           season_number?: number
           show_id?: string
           title?: string
