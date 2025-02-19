@@ -1,10 +1,10 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "./components/ThemeProvider";
-import { Toaster } from "./components/ui/toaster";
-import { Header } from "./components/Header";
-import { Sidebar } from "./components/Sidebar";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/toaster";
+import { Header } from "@/components/Header";
+import { Sidebar } from "@/components/Sidebar";
 
 import Index from "./pages/Index";
 import ShowDetail from "./pages/ShowDetail";
