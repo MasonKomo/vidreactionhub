@@ -1,8 +1,8 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 type Video = {
   id: string;
@@ -74,6 +74,7 @@ function formatViewCount(count: number): string {
 }
 
 function TopShowsSection() {
+  const navigate = useNavigate();
   const { data: shows, isLoading, error } = useQuery({
     queryKey: ['topShows'],
     queryFn: fetchTopShows,
@@ -111,6 +112,7 @@ function TopShowsSection() {
           <Card 
             key={show.id} 
             className="flex-shrink-0 w-[300px] overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+            onClick={() => navigate(`/show/${show.id}`)}
           >
             <div className="aspect-video bg-muted">
               {show.thumbnail_url && (

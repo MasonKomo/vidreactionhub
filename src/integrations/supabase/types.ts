@@ -33,6 +33,41 @@ export type Database = {
         }
         Relationships: []
       }
+      episodes: {
+        Row: {
+          created_at: string
+          episode_number: number
+          id: string
+          season_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          episode_number: number
+          id?: string
+          season_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          episode_number?: number
+          id?: string
+          season_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -56,6 +91,41 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      seasons: {
+        Row: {
+          created_at: string
+          id: string
+          season_number: number
+          show_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          season_number: number
+          show_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          season_number?: number
+          show_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seasons_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shows: {
         Row: {
@@ -131,6 +201,7 @@ export type Database = {
           created_at: string
           description: string | null
           duration: unknown | null
+          episode_id: string | null
           id: string
           show_id: string | null
           thumbnail_url: string
@@ -144,6 +215,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration?: unknown | null
+          episode_id?: string | null
           id?: string
           show_id?: string | null
           thumbnail_url: string
@@ -157,6 +229,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration?: unknown | null
+          episode_id?: string | null
           id?: string
           show_id?: string | null
           thumbnail_url?: string
@@ -167,6 +240,13 @@ export type Database = {
           views_count?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "videos_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "videos_show_id_fkey"
             columns: ["show_id"]
