@@ -12,6 +12,24 @@ type Video = {
   created_at: string;
 };
 
+type Show = {
+  id: string;
+  title: string;
+  thumbnail_url: string | null;
+  platform: string;
+};
+
+async function fetchTopShows() {
+  const { data, error } = await supabase
+    .from('shows')
+    .select('id, title, thumbnail_url, platform')
+    .eq('top_show', true)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
 async function fetchVideos() {
   const { data, error } = await supabase
     .from('videos')
@@ -38,72 +56,120 @@ function formatViewCount(count: number): string {
   return count.toString();
 }
 
+function TopShowsSection() {
+  const { data: shows, isLoading, error } = useQuery({
+    queryKey: ['topShows'],
+    queryFn: fetchTopShows,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="overflow-x-auto pb-4">
+        <div className="flex gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="flex-shrink-0 w-[300px] overflow-hidden bg-card">
+              <div className="aspect-video bg-muted animate-pulse" />
+              <div className="p-4">
+                <div className="h-4 bg-muted animate-pulse rounded" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !shows?.length) return null;
+
+  return (
+    <div className="overflow-x-auto pb-4">
+      <h2 className="text-xl font-semibold mb-4 px-4">Top Shows</h2>
+      <div className="flex gap-4 px-4">
+        {shows.map((show) => (
+          <Card 
+            key={show.id} 
+            className="flex-shrink-0 w-[300px] overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+          >
+            <div className="aspect-video bg-muted">
+              {show.thumbnail_url && (
+                <img
+                  src={show.thumbnail_url}
+                  alt={show.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+            <div className="p-4">
+              <h3 className="font-medium line-clamp-2">{show.title}</h3>
+              <p className="text-sm text-muted-foreground mt-1">{show.platform}</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function VideoGrid() {
   const { data: videos, isLoading, error } = useQuery({
     queryKey: ['videos'],
     queryFn: fetchVideos,
   });
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-        {[...Array(8)].map((_, i) => (
-          <Card key={i} className="overflow-hidden bg-card">
-            <div className="aspect-video bg-muted animate-pulse" />
-            <div className="p-4 space-y-2">
-              <div className="h-4 bg-muted animate-pulse rounded" />
-              <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
-            </div>
-          </Card>
-        ))}
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
-        Error loading videos. Please try again later.
-      </div>
-    );
-  }
-
-  if (!videos?.length) {
-    return (
-      <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
-        No videos found.
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
-      {videos.map((video) => (
-        <Card 
-          key={video.id} 
-          className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-        >
-          <div className="aspect-video bg-muted">
-            {video.thumbnail_url && (
-              <img
-                src={video.thumbnail_url}
-                alt={video.title}
-                className="w-full h-full object-cover"
-              />
-            )}
-          </div>
-          <div className="p-4">
-            <h3 className="font-medium line-clamp-2">{video.title}</h3>
-            <div className="mt-2 text-sm text-muted-foreground">
-              <p>
-                {formatViewCount(video.views_count)} views • {
-                  format(new Date(video.created_at), 'MMM d, yyyy')
-                }
-              </p>
-            </div>
-          </div>
-        </Card>
-      ))}
+    <div className="space-y-8">
+      <TopShowsSection />
+      
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i} className="overflow-hidden bg-card">
+              <div className="aspect-video bg-muted animate-pulse" />
+              <div className="p-4 space-y-2">
+                <div className="h-4 bg-muted animate-pulse rounded" />
+                <div className="h-3 bg-muted animate-pulse rounded w-2/3" />
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
+          Error loading videos. Please try again later.
+        </div>
+      ) : !videos?.length ? (
+        <div className="flex justify-center items-center h-[50vh] text-muted-foreground">
+          No videos found.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+          {videos.map((video) => (
+            <Card 
+              key={video.id} 
+              className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+            >
+              <div className="aspect-video bg-muted">
+                {video.thumbnail_url && (
+                  <img
+                    src={video.thumbnail_url}
+                    alt={video.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="font-medium line-clamp-2">{video.title}</h3>
+                <div className="mt-2 text-sm text-muted-foreground">
+                  <p>
+                    {formatViewCount(video.views_count)} views • {
+                      format(new Date(video.created_at), 'MMM d, yyyy')
+                    }
+                  </p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

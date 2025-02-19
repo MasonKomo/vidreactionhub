@@ -67,6 +67,7 @@ export type Database = {
           show_type: Database["public"]["Enums"]["show_type"]
           thumbnail_url: string | null
           title: string
+          top_show: boolean
           updated_at: string
         }
         Insert: {
@@ -78,6 +79,7 @@ export type Database = {
           show_type: Database["public"]["Enums"]["show_type"]
           thumbnail_url?: string | null
           title: string
+          top_show?: boolean
           updated_at?: string
         }
         Update: {
@@ -89,6 +91,7 @@ export type Database = {
           show_type?: Database["public"]["Enums"]["show_type"]
           thumbnail_url?: string | null
           title?: string
+          top_show?: boolean
           updated_at?: string
         }
         Relationships: []
