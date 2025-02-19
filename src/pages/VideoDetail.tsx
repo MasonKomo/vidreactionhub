@@ -13,6 +13,7 @@ type VideoDetails = {
   title: string;
   description: string | null;
   youtube_video_id: string;
+  video_url: string;
   views_count: number;
   created_at: string;
   show: {
@@ -33,14 +34,6 @@ type VideoDetails = {
   } | null;
 };
 
-type RelatedVideo = {
-  id: string;
-  title: string;
-  thumbnail_url: string;
-  views_count: number;
-  created_at: string;
-};
-
 async function fetchVideoDetails(id: string) {
   const { data, error } = await supabase
     .from('videos')
@@ -49,6 +42,7 @@ async function fetchVideoDetails(id: string) {
       title,
       description,
       youtube_video_id,
+      video_url,
       views_count,
       created_at,
       show:shows (
@@ -126,6 +120,15 @@ export default function VideoDetail() {
     ? `/show/${video.show.id}`
     : '/';
 
+  // Get the YouTube URL, preferring video_url if it exists
+  const youtubeUrl = video.video_url || (video.youtube_video_id ? `https://www.youtube.com/watch?v=${video.youtube_video_id}` : '');
+  const embedId = video.youtube_video_id || (video.video_url ? video.video_url.split('v=')[1]?.split('&')[0] : '');
+
+  console.log('Video URL:', video.video_url);
+  console.log('YouTube Video ID:', video.youtube_video_id);
+  console.log('Computed YouTube URL:', youtubeUrl);
+  console.log('Computed Embed ID:', embedId);
+
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
       <div className="flex items-center gap-4">
@@ -142,16 +145,22 @@ export default function VideoDetail() {
       </div>
 
       <div className="aspect-video w-full bg-muted rounded-lg overflow-hidden">
-        <iframe
-          src={`https://www.youtube.com/embed/${video.youtube_video_id}?rel=0&modestbranding=1`}
-          title={video.title}
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-          className="w-full h-full"
-        />
+        {embedId ? (
+          <iframe
+            src={`https://www.youtube.com/embed/${embedId}?rel=0&modestbranding=1`}
+            title={video.title}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            className="w-full h-full"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            Video unavailable
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -161,22 +170,24 @@ export default function VideoDetail() {
           <span className="mx-2">•</span>
           <span>{format(new Date(video.created_at), 'MMM d, yyyy')}</span>
           <span className="mx-2">•</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-sm h-auto p-0"
-            asChild
-          >
-            <a
-              href={`https://www.youtube.com/watch?v=${video.youtube_video_id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 hover:text-primary"
+          {youtubeUrl && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm h-auto p-0"
+              asChild
             >
-              Watch on YouTube
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          </Button>
+              <a
+                href={youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 hover:text-primary"
+              >
+                Watch on YouTube
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </Button>
+          )}
         </div>
         {video.description && (
           <p className="text-muted-foreground whitespace-pre-wrap">{video.description}</p>
