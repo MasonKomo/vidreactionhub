@@ -9,6 +9,30 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -33,6 +57,122 @@ export type Database = {
         }
         Relationships: []
       }
+      shows: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          platform: Database["public"]["Enums"]["platform_type"]
+          release_year: number | null
+          show_type: Database["public"]["Enums"]["show_type"]
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          platform?: Database["public"]["Enums"]["platform_type"]
+          release_year?: number | null
+          show_type: Database["public"]["Enums"]["show_type"]
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          platform?: Database["public"]["Enums"]["platform_type"]
+          release_year?: number | null
+          show_type?: Database["public"]["Enums"]["show_type"]
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shows_categories: {
+        Row: {
+          category_id: string
+          show_id: string
+        }
+        Insert: {
+          category_id: string
+          show_id: string
+        }
+        Update: {
+          category_id?: string
+          show_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shows_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shows_categories_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: unknown | null
+          id: string
+          show_id: string | null
+          thumbnail_url: string
+          title: string
+          updated_at: string
+          user_id: string | null
+          video_url: string
+          views_count: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: unknown | null
+          id?: string
+          show_id?: string | null
+          thumbnail_url: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          video_url: string
+          views_count?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: unknown | null
+          id?: string
+          show_id?: string | null
+          thumbnail_url?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          video_url?: string
+          views_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -41,7 +181,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      platform_type: "Netflix" | "HBO" | "Disney+" | "Prime" | "Other"
+      show_type: "TV Show" | "Movie" | "Anime"
     }
     CompositeTypes: {
       [_ in never]: never
