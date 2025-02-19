@@ -7,9 +7,10 @@ type EpisodeCardProps = {
   id: string;
   title: string;
   episodeNumber: number;
+  reactionCount: number;
 };
 
-export function EpisodeCard({ id, title, episodeNumber }: EpisodeCardProps) {
+export function EpisodeCard({ id, title, episodeNumber, reactionCount }: EpisodeCardProps) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -24,6 +25,9 @@ export function EpisodeCard({ id, title, episodeNumber }: EpisodeCardProps) {
       <h3 className="font-medium">
         {episodeNumber}. {title}
       </h3>
+      <p className="text-sm text-muted-foreground mt-1">
+        {reactionCount} {reactionCount === 1 ? 'reaction' : 'reactions'}
+      </p>
     </Card>
   );
 }

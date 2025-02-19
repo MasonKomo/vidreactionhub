@@ -25,6 +25,7 @@ type Episode = {
   id: string;
   title: string;
   episode_number: number;
+  reaction_count: number;
 };
 
 type Video = {
@@ -60,12 +61,21 @@ async function fetchSeasons(showId: string): Promise<Season[]> {
 async function fetchEpisodes(seasonId: string): Promise<Episode[]> {
   const { data, error } = await supabase
     .from('episodes')
-    .select('id, title, episode_number')
+    .select(`
+      id,
+      title,
+      episode_number,
+      reaction_count:videos(count)
+    `)
     .eq('season_id', seasonId)
     .order('episode_number');
 
   if (error) throw error;
-  return data || [];
+  
+  return (data || []).map(episode => ({
+    ...episode,
+    reaction_count: episode.reaction_count[0].count
+  }));
 }
 
 async function fetchShowVideos(showId: string): Promise<Video[]> {
@@ -154,6 +164,7 @@ export default function ShowDetail() {
                   id={episode.id}
                   title={episode.title}
                   episodeNumber={episode.episode_number}
+                  reactionCount={episode.reaction_count}
                 />
               ))}
             </div>
