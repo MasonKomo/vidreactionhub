@@ -185,6 +185,7 @@ export default function ShowDetail() {
               {episodes?.map((episode) => (
                 <EpisodeCard
                   key={episode.id}
+                  id={episode.id}
                   title={episode.title}
                   episodeNumber={episode.episode_number}
                   video={episode.video}

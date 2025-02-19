@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { formatViewCount } from "@/lib/format";
@@ -12,14 +13,24 @@ type EpisodeVideo = {
 };
 
 type EpisodeCardProps = {
+  id: string;
   title: string;
   episodeNumber: number;
   video: EpisodeVideo | null;
 };
 
-export function EpisodeCard({ title, episodeNumber, video }: EpisodeCardProps) {
+export function EpisodeCard({ id, title, episodeNumber, video }: EpisodeCardProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/episode/${id}`);
+  };
+
   return (
-    <Card className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer">
+    <Card 
+      className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+      onClick={handleClick}
+    >
       {video ? (
         <>
           <div className="aspect-video bg-muted">
