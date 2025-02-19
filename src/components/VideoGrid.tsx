@@ -188,6 +188,7 @@ export function VideoGrid() {
         {videos.map((video) => (
           <VideoCard
             key={video.id}
+            id={video.id}
             title={video.title}
             thumbnail_url={video.thumbnail_url}
             views_count={video.views_count}
