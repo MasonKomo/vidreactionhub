@@ -1,10 +1,12 @@
+
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
+import { ShowHeader } from "@/components/show/ShowHeader";
+import { EpisodeCard } from "@/components/show/EpisodeCard";
+import { VideoCard } from "@/components/show/VideoCard";
 
 type Show = {
   id: string;
@@ -63,6 +65,18 @@ async function fetchSeasons(showId: string): Promise<Season[]> {
 }
 
 async function fetchEpisodes(seasonId: string): Promise<Episode[]> {
+  type RawEpisode = {
+    id: string;
+    title: string;
+    episode_number: number;
+    video: [{
+      id: string;
+      thumbnail_url: string;
+      views_count: number;
+      created_at: string;
+    }] | [];
+  };
+
   const { data, error } = await supabase
     .from('episodes')
     .select(`
@@ -80,7 +94,12 @@ async function fetchEpisodes(seasonId: string): Promise<Episode[]> {
     .order('episode_number');
 
   if (error) throw error;
-  return data || [];
+
+  // Transform the data to match our Episode type
+  return (data as RawEpisode[]).map(episode => ({
+    ...episode,
+    video: episode.video.length > 0 ? episode.video[0] : null
+  }));
 }
 
 async function fetchShowVideos(showId: string): Promise<Video[]> {
@@ -92,41 +111,6 @@ async function fetchShowVideos(showId: string): Promise<Video[]> {
 
   if (error) throw error;
   return data || [];
-}
-
-function formatViewCount(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M`;
-  } else if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
-}
-
-function ShowHeader({ show }: { show: Show }) {
-  return (
-    <div className="relative h-[300px] mb-8">
-      {show.thumbnail_url && (
-        <>
-          <div className="absolute inset-0">
-            <img
-              src={show.thumbnail_url}
-              alt={show.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background to-background/20" />
-          </div>
-        </>
-      )}
-      <div className="absolute bottom-0 left-0 p-8">
-        <h1 className="text-4xl font-bold mb-2">{show.title}</h1>
-        {show.description && (
-          <p className="text-lg text-muted-foreground max-w-2xl">{show.description}</p>
-        )}
-        <p className="text-sm text-muted-foreground mt-2">Watch on {show.platform}</p>
-      </div>
-    </div>
-  );
 }
 
 export default function ShowDetail() {
@@ -173,7 +157,7 @@ export default function ShowDetail() {
 
   return (
     <div>
-      <ShowHeader show={show} />
+      <ShowHeader {...show} />
       
       <div className="p-8 space-y-8">
         {seasons?.length ? (
@@ -199,41 +183,12 @@ export default function ShowDetail() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {episodes?.map((episode) => (
-                <Card 
+                <EpisodeCard
                   key={episode.id}
-                  className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-                >
-                  {episode.video ? (
-                    <>
-                      <div className="aspect-video bg-muted">
-                        <img
-                          src={episode.video.thumbnail_url}
-                          alt={episode.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-medium line-clamp-2">
-                          {episode.episode_number}. {episode.title}
-                        </h3>
-                        <div className="mt-2 text-sm text-muted-foreground">
-                          <p>
-                            {formatViewCount(episode.video.views_count)} views • {
-                              format(new Date(episode.video.created_at), 'MMM d, yyyy')
-                            }
-                          </p>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="p-4">
-                      <h3 className="font-medium">
-                        {episode.episode_number}. {episode.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-2">No video available</p>
-                    </div>
-                  )}
-                </Card>
+                  title={episode.title}
+                  episodeNumber={episode.episode_number}
+                  video={episode.video}
+                />
               ))}
             </div>
           </div>
@@ -244,28 +199,7 @@ export default function ShowDetail() {
             <h2 className="text-2xl font-semibold">All Videos</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {videos.map((video) => (
-                <Card 
-                  key={video.id}
-                  className="overflow-hidden bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-                >
-                  <div className="aspect-video bg-muted">
-                    <img
-                      src={video.thumbnail_url}
-                      alt={video.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-medium line-clamp-2">{video.title}</h3>
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      <p>
-                        {formatViewCount(video.views_count)} views • {
-                          format(new Date(video.created_at), 'MMM d, yyyy')
-                        }
-                      </p>
-                    </div>
-                  </div>
-                </Card>
+                <VideoCard key={video.id} {...video} />
               ))}
             </div>
           </div>
