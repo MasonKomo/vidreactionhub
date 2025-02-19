@@ -143,9 +143,12 @@ export default function VideoDetail() {
 
       <div className="aspect-video w-full bg-muted rounded-lg overflow-hidden">
         <iframe
-          src={`https://www.youtube.com/embed/${video.youtube_video_id}`}
+          src={`https://www.youtube.com/embed/${video.youtube_video_id}?rel=0&modestbranding=1`}
           title={video.title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          width="100%"
+          height="100%"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
           className="w-full h-full"
         />
