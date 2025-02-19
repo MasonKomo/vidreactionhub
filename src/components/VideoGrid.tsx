@@ -123,13 +123,15 @@ export function VideoGrid() {
   const { data: videos, isLoading, error } = useQuery({
     queryKey: ['videos'],
     queryFn: fetchVideos,
-    onError: (error) => {
-      console.error('Error fetching videos:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Could not load videos. Please try again later.",
-      });
+    meta: {
+      onError: (error: Error) => {
+        console.error('Error fetching videos:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not load videos. Please try again later.",
+        });
+      }
     }
   });
 
