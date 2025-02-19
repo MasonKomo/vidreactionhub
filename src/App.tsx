@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
+import { AuthProvider } from "@/lib/AuthContext";
 
 import Index from "./pages/Index";
 import ShowDetail from "./pages/ShowDetail";
@@ -18,20 +19,22 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Router>
-          <div className="min-h-screen">
-            <Header />
-            <div className="flex">
-              <Sidebar />
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/show/:id" element={<ShowDetail />} />
-                  <Route path="/episode/:id" element={<EpisodeDetail />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
+          <AuthProvider>
+            <div className="min-h-screen">
+              <Header />
+              <div className="flex">
+                <Sidebar />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/show/:id" element={<ShowDetail />} />
+                    <Route path="/episode/:id" element={<EpisodeDetail />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+              </div>
             </div>
-          </div>
+          </AuthProvider>
         </Router>
         <Toaster />
       </ThemeProvider>
